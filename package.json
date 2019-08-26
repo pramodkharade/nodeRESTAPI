@@ -1,0 +1,28 @@
+{
+  "name": "noderestapi",
+  "version": "1.0.0",
+  "description": "Node REST API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pramodkharade/nodeRESTAPI.git"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "rest",
+    "api"
+  ],
+  "author": "Pramod Kharade",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pramodkharade/nodeRESTAPI/issues"
+  },
+  "homepage": "https://github.com/pramodkharade/nodeRESTAPI#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
