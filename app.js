@@ -1,7 +1,10 @@
 const express = require('express');
 const feedRouter = require('./routes/feed');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');   
 const app = express();
+const MONGOURI ='mongodb://127.0.0.1:27017/blogNodeAPI';
+const port = process.env.PORT || 8080;
 //app.use(bodyParser.urlencoded())// x-www-form-url
 app.use(bodyParser.json()); // application/json
 app.use((req,res,next)=>{
@@ -11,4 +14,13 @@ app.use((req,res,next)=>{
     next();
 });
 app.use('/feed',feedRouter);
-app.listen(8080);
+
+mongoose.connect(MONGOURI, { useNewUrlParser: true })
+    .then((result) => {
+        app.listen(port, () => {
+            console.log('Server is running on mongoose ', port);
+        });
+    })
+    .catch(error => {
+        console.log('connection error is: ', error);
+    });
