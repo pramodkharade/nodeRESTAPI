@@ -1,7 +1,13 @@
 exports.getPosts= (req,res,next)=>{
     res.status(200).json({'posts':[{ 
-        'title':'NodeJs',
-        'content':"It is light weight technology for REST API"
+        _id:'1',
+        title:'NodeJs',
+        content:"It is light weight technology for REST API",
+        imageUrl:'images/duck.png',
+        creator:{
+            name:"Pramod Kharade"
+        },
+        createdAt: new Date()
        }]});
 };
 exports.createPost = (req,res,next)=>{
