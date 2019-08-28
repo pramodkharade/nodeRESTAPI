@@ -9,3 +9,7 @@ npm i --save express
 
 # Install Body parser
 npm i --save body-parser
+
+# Install the express validator
+
+ npm i --save express-validator
