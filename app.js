@@ -16,7 +16,11 @@ app.use((req,res,next)=>{
     next();
 });
 app.use('/feed',feedRouter);
-
+app.use((error,req,res,next)=>{
+    const status = error.statusCode || 500;
+    const message = error.message;
+    res.status(status).json({message:message});
+});
 mongoose.connect(MONGOURI, { useNewUrlParser: true })
     .then((result) => {
         app.listen(port, () => {
