@@ -8,4 +8,5 @@ router.post('/post',[
     body('title').trim().isLength({min:5}).withMessage('Please enter valid title'),
     body('content').trim().isLength({min:5}).withMessage('Please enter valid content'),
 ],feedController.createPost);
+router.get('/post/:postId',feedController.getPost);
 module.exports = router;
