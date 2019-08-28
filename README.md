@@ -13,3 +13,11 @@ npm i --save body-parser
 # Install the express validator
 
  npm i --save express-validator
+
+ # Install Mongoose
+
+ npm i --save mongoose
+
+ # Install multer to file upload
+
+ npm i --save multer
