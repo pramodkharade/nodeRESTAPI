@@ -174,8 +174,13 @@ exports.deletePost = (req, res, next) => {
             }
             clearImage(post.imageUrl);
             return Post.findOneAndRemove(postId);
+        }).then(result=>{
+            return User.findById(req.userId);
         })
-        .then(result => {
+        .then(user => {
+            user.posts.pull(postId);
+            return user.save(); 
+        }).then(result=>{
             console.log(result);
             res.status(200).json({ message: 'post has been deleted' })
         })
