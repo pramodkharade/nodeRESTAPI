@@ -1,77 +1,132 @@
-const {validationResult} = require('express-validator');
+const fs = require('fs');
+const path = require('path');
+const { validationResult } = require('express-validator');
 const Post = require('../models/post');
-exports.getPosts= (req,res,next)=>{
+exports.getPosts = (req, res, next) => {
     Post.find()
-        .then(posts=>{
-            if(!posts){
+        .then(posts => {
+            if (!posts) {
                 const error = new Error('Could not found posts');
                 error.statusCode = 404;
-               throw error;
+                throw error;
             }
-            res.status(200).json({message:'Posts are found!',posts:posts});
+            res.status(200).json({ message: 'Posts are found!', posts: posts });
         })
-        .catch(error=>{
-            if(!error.statusCode){
+        .catch(error => {
+            if (!error.statusCode) {
                 error.statusCode = 500;
             }
             next(error);
         });
 };
-exports.createPost = (req,res,next)=>{
+exports.createPost = (req, res, next) => {
     const error = validationResult(req);
-    if(!error.isEmpty()){
+    if (!error.isEmpty()) {
         const error = new Error('Validation failed, entered data is incorrect');
-         error.statusCode = 422;
+        error.statusCode = 422;
         throw error;
     }
-    if(!req.file){
+    if (!req.file) {
         const error = new Error('image file is not provided');
-         error.statusCode = 422;
+        error.statusCode = 422;
         throw error;
     }
     const title = req.body.title;
     const content = req.body.content;
-    const imageUrl = req.file.path.replace("\\" ,"/");
+    const imageUrl = req.file.path.replace("\\", "/");
     /****Create db connection****/
     const post = new Post({
-        title:title,
-            content:content,
-            imageUrl:imageUrl,
-            creator:{
-                name:'Pramod Kharade'
-            }
+        title: title,
+        content: content,
+        imageUrl: imageUrl,
+        creator: {
+            name: 'Pramod Kharade'
+        }
     });
-    post.save().then(result=>{
+    post.save().then(result => {
         console.log(result);
         res.status(201).json({
-            message:"Post is created successfully.",
-            post:result
+            message: "Post is created successfully.",
+            post: result
         })
     })
-    .catch(error=>{
-        if(!error.statusCode){
-            error.statusCode = 500;
-        }
-        next(error);
-        console.log(error);
-    });
-   
+        .catch(error => {
+            if (!error.statusCode) {
+                error.statusCode = 500;
+            }
+            next(error);
+            console.log(error);
+        });
+
 };
-exports.getPost = (req,res,next)=>{
+exports.getPost = (req, res, next) => {
     const postId = req.params.postId;
     Post.findById(postId)
-    .then(post=>{
-        if(!post){
-            const error = new Error('Could not found post');
-            error.statusCode = 404;
-           throw error;
-        }
-        res.status(200).json({message:'Post found',post:post});
-    })
-    .catch(error=>{
-        if(!error.statusCode){
-            error.statusCode = 500;
-        }
-        next(error);
+        .then(post => {
+            if (!post) {
+                const error = new Error('Could not found post');
+                error.statusCode = 404;
+                throw error;
+            }
+            res.status(200).json({ message: 'Post found', post: post });
+        })
+        .catch(error => {
+            if (!error.statusCode) {
+                error.statusCode = 500;
+            }
+            next(error);
         });
+};
+exports.updatePost = (req, res, next) => {
+    const error = validationResult(req);
+    if (!error.isEmpty()) {
+        const error = new Error('Validation failed, entered data is incorrect');
+        error.statusCode = 422;
+        throw error;
+    }
+    const postId = req.params.postId;
+    const title = req.body.title;
+    const content = req.body.content;
+    let imageUrl = req.body.image;
+
+    if (req.file) {
+        imageUrl = req.file.path.replace("\\", "/");
+    }
+    if (!imageUrl) {
+        const error = new Error('No file picked');
+        error.statusCode = 422;
+        throw error;
+    }
+    Post.findById(postId)
+        .then(post => {
+            if (!post) {
+                const error = new Error('Could not found post');
+                error.statusCode = 404;
+                throw error;
+            }
+            if (imageUrl !== post.imageUrl) {
+                clearPath(post.imageUrl);
+            }
+            post.title = title;
+            post.content = content;
+            post.imageUrl = imageUrl;
+            return post.save();
+
+        }).then(post => {
+            res.status(200).json({ message: 'Post has been updated', post: post });
+        })
+        .catch(error => {
+
+            if (!error.statusCode) {
+                error.statusCode = 500;
+            }
+            next(error);
+        });
+};
+
+const clearPath = filepath => {
+    filepath = path.join(__dirname, '..', filepath);
+    fs.unlink(filepath, error => {
+        console.log(error);
+    });
 };
