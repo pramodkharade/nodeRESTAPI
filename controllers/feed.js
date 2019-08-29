@@ -3,14 +3,25 @@ const path = require('path');
 const { validationResult } = require('express-validator');
 const Post = require('../models/post');
 exports.getPosts = (req, res, next) => {
-    Post.find()
+    const currentPage = req.query.page || 1;
+    const perPage = 2;
+    let totalItems;
+    Post.find().countDocuments()
+        .then(count => {
+            totalItems = count;
+            return Post.find().skip((currentPage - 1) * perPage).limit(perPage);
+        })
         .then(posts => {
             if (!posts) {
                 const error = new Error('Could not found posts');
                 error.statusCode = 404;
                 throw error;
             }
-            res.status(200).json({ message: 'Posts are found!', posts: posts });
+            res.status(200).json({
+                 message: 'Posts are found!',
+                posts: posts, 
+                totalItems: totalItems 
+            });
         })
         .catch(error => {
             if (!error.statusCode) {
@@ -18,6 +29,7 @@ exports.getPosts = (req, res, next) => {
             }
             next(error);
         });
+
 };
 exports.createPost = (req, res, next) => {
     const error = validationResult(req);
@@ -134,7 +146,7 @@ const clearImage = filepath => {
 exports.deletePost = (req, res, next) => {
     const postId = req.params.postId;
     Post.findById(postId)
-        .then(post=>{
+        .then(post => {
             //check logged in user
             if (!post) {
                 const error = new Error('Could not found post');
@@ -144,9 +156,9 @@ exports.deletePost = (req, res, next) => {
             clearImage(post.imageUrl);
             return Post.findOneAndRemove(postId);
         })
-        .then(result=>{
+        .then(result => {
             console.log(result);
-            res.status(200).json({message:'post has been deleted'})
+            res.status(200).json({ message: 'post has been deleted' })
         })
         .catch(error => {
             if (!error.statusCode) {
