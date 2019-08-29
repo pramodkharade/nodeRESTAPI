@@ -21,3 +21,11 @@ npm i --save body-parser
  # Install multer to file upload
 
  npm i --save multer
+
+ # Install  to encryption of password
+
+ npm i --save bcryptjs
+
+ # Install jsonwebToken for authentication and authorize the token
+
+ npm i --save jsonwebtoken
