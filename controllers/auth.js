@@ -13,16 +13,16 @@ exports.singup = (req, res, next) => {
     const password = req.body.password;
     const name = req.body.name;
     bcrypt.hash(password, 12)
-        .then(hashedPassword=>{
+        .then(hashedPassword => {
             const user = new User({
-                email:email,
+                email: email,
                 password: hashedPassword,
-                name:name
+                name: name
             });
-           return user.save();
+            return user.save();
         })
-        then(result=>{
-            res.status(200).json({message:' User has been created',userId:result._id});
+        .then(result => {
+            res.status(201).json({ message: ' User has been created', userId: result._id });
         })
         .catch(error => {
             if (!error.statusCode) {
@@ -31,4 +31,33 @@ exports.singup = (req, res, next) => {
             next(error);
             console.log(error);
         });
-};  
+};
+exports.login = (req, res, next) => {
+    const email = req.body.email;
+    const password = req.body.password;
+    let loadeduser;
+    User.findOne({ email: email })
+        .then(user=>{
+            if(!user){
+                const error = new Error('A user with this email could not found');
+                error.statusCode = 401;
+                throw error;
+            }
+            loadeduser = user;
+            return bcrypt.compare(password,user.password);
+        })
+        .then(isEqual=>{
+            if(!isEqual){
+                const error = new Error('invalid password');
+                error.statusCode = 401;
+                throw error;
+            }
+        })
+        .catch(error => {
+            if (!error.statusCode) {
+                error.statusCode = 500;
+            }
+            next(error);
+            console.log(error);
+        });
+};
