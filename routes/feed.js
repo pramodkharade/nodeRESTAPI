@@ -13,4 +13,5 @@ router.put('/updatepost/:postId', [
     body('title').trim().isLength({ min: 5 }).withMessage('Please enter valid title'),
     body('content').trim().isLength({ min: 5 }).withMessage('Please enter valid content'),
 ], feedController.updatePost);
+router.delete('/post/:postId',feedController.deletePost);
 module.exports = router;
