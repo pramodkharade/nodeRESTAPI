@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { validationResult } = require('express-validator');
+const io = require('../socket');
 const Post = require('../models/post');
 const User = require('../models/user');
 exports.getPosts = (req, res, next) => {
@@ -57,6 +58,7 @@ exports.createPost = (req, res, next) => {
     });
     post.save()
     .then(result=>{
+        io.getIO().emit('posts',{ action: 'create',post: post});
         return User.findById(req.userId);   
     })
     .then(user => {
