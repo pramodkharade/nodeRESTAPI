@@ -199,6 +199,11 @@ exports.deletePost = (req, res, next) => {
             return user.save();
         }).then(result => {
             console.log(result);
+            io.getIO().emit('posts',
+            {
+                action: 'delete',
+                post: postId
+            });
             res.status(200).json({ message: 'post has been deleted' })
         })
         .catch(error => {
