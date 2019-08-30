@@ -20,9 +20,9 @@ exports.getPosts = (req, res, next) => {
                 throw error;
             }
             res.status(200).json({
-                 message: 'Posts are found!',
-                posts: posts, 
-                totalItems: totalItems 
+                message: 'Posts are found!',
+                posts: posts,
+                totalItems: totalItems
             });
         })
         .catch(error => {
@@ -57,22 +57,32 @@ exports.createPost = (req, res, next) => {
         creator: req.userId
     });
     post.save()
-    .then(result=>{
-        io.getIO().emit('posts',{ action: 'create',post: {...post._doc, creator:{_id:req.userId,name:user.name}} });
-        return User.findById(req.userId);   
-    })
-    .then(user => {
-        creator = user;
-        user.posts.push(post);
-        return user.save();
-       
-    }).then(result=>{
-        res.status(201).json({
-            message: "Post is created successfully.",
-            post: post,
-            creator:{_id:creator._id,name:creator.name}
+        .then(result => {
+            io.getIO().emit('posts',
+                {
+                    action: 'create',
+                    post: {
+                        ...post._doc,
+                        creator: {
+                            _id: req.userId,
+                            name: user.name
+                        }
+                    }
+                });
+            return User.findById(req.userId);
         })
-    })
+        .then(user => {
+            creator = user;
+            user.posts.push(post);
+            return user.save();
+
+        }).then(result => {
+            res.status(201).json({
+                message: "Post is created successfully.",
+                post: post,
+                creator: { _id: creator._id, name: creator.name }
+            })
+        })
         .catch(error => {
             if (!error.statusCode) {
                 error.statusCode = 500;
@@ -120,14 +130,14 @@ exports.updatePost = (req, res, next) => {
         error.statusCode = 422;
         throw error;
     }
-    Post.findById(postId)
+    Post.findById(postId).populate('creator')
         .then(post => {
             if (!post) {
                 const error = new Error('Could not found post');
                 error.statusCode = 404;
                 throw error;
             }
-            if(post.creator.toString() !== req.userId){
+            if (post.creator._id.toString() !== req.userId) {
                 const error = new Error('Not authorized');
                 error.statusCode = 403;
                 throw error;
@@ -141,6 +151,11 @@ exports.updatePost = (req, res, next) => {
             return post.save();
 
         }).then(post => {
+            io.getIO().emit('posts',
+            {
+                action: 'update',
+                post: post
+            });
             res.status(200).json({ message: 'Post has been updated', post: post });
         })
         .catch(error => {
@@ -169,20 +184,20 @@ exports.deletePost = (req, res, next) => {
                 error.statusCode = 404;
                 throw error;
             }
-            if(post.creator.toString() !== req.userId){
+            if (post.creator.toString() !== req.userId) {
                 const error = new Error('Not authorized');
                 error.statusCode = 403;
                 throw error;
             }
             clearImage(post.imageUrl);
             return Post.findOneAndRemove(postId);
-        }).then(result=>{
+        }).then(result => {
             return User.findById(req.userId);
         })
         .then(user => {
             user.posts.pull(postId);
-            return user.save(); 
-        }).then(result=>{
+            return user.save();
+        }).then(result => {
             console.log(result);
             res.status(200).json({ message: 'post has been deleted' })
         })
