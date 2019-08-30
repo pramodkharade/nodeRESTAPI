@@ -29,3 +29,14 @@ npm i --save body-parser
  # Install jsonwebToken for authentication and authorize the token
 
  npm i --save jsonwebtoken
+
+ # To swagger Doc
+ npm i swagger-ui-express
+
+ npm i swagger-doc
+ 
+ npm i swagger-ui-dist
+
+ # Install the socket.io to set communication channel between client and server.
+
+ npm i --save socket.io
