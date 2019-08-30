@@ -43,8 +43,12 @@ app.use((error,req,res,next)=>{
 });
 mongoose.connect(MONGOURI, { useNewUrlParser: true })
     .then((result) => {
-        app.listen(port, () => {
+        const server = app.listen(port, () => {
             console.log('Server is running on mongoose ', port);
+        });
+        const io = require('socket.io')(server);
+        io.on('connection',socket=>{
+            console.log('Client connected');
         });
     })
     .catch(error => {
