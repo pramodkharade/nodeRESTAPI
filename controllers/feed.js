@@ -58,7 +58,7 @@ exports.createPost = (req, res, next) => {
     });
     post.save()
     .then(result=>{
-        io.getIO().emit('posts',{ action: 'create',post: post});
+        io.getIO().emit('posts',{ action: 'create',post: {...post._doc, creator:{_id:req.userId,name:user.name}} });
         return User.findById(req.userId);   
     })
     .then(user => {
