@@ -10,7 +10,7 @@ exports.getPosts = (req, res, next) => {
     Post.find().countDocuments()
         .then(count => {
             totalItems = count;
-            return Post.find().skip((currentPage - 1) * perPage).limit(perPage);
+            return Post.find().populate('creator').skip((currentPage - 1) * perPage).limit(perPage);
         })
         .then(posts => {
             if (!posts) {
